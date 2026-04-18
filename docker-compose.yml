@@ -1,0 +1,27 @@
+services:
+  app1:
+    image: imam000/my-node-app:latest
+    container_name: app1
+    hostname: app1
+
+  app2:
+    image: imam000/my-node-app:latest
+    container_name: app2
+    hostname: app2
+
+  app3:
+    image: imam000/my-node-app:latest
+    container_name: app3
+    hostname: app3
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - app1
+      - app2
+      - app3
