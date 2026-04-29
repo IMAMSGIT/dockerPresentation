@@ -1,33 +1,56 @@
-Step 1 — Download Ubuntu Server 24.04 ISO
-Get it from: https://ubuntu.com/download/server
-(You'll need this ISO file to install on each VM)
+# Assignment 2
 
-Step 2 — Create VM1 in VirtualBox
+## Network Topology
 
-Open VirtualBox → Click New
-Set:
+| VM   | Role              | IP Address      |
+|------|-------------------|-----------------|
+| VM1  | Docker App Host   | 192.168.123.10  |
+| VM2  | Nginx Reverse Proxy | 192.168.123.20 |
 
-Name: vm1
-Type: Linux
-Version: Ubuntu 24.04 (64-bit)
+- **Subnet:** 192.168.123.0/24  
+- **Adapter:** VirtualBox Host-Only  
+- **OS:** Debian Trixie 13  
 
-RAM: at least 1024 MB (2048 recommended)
-Hard disk: at least 10 GB
-Attach the Ubuntu ISO → Settings → Storage → attach ISO
-Start VM → go through Ubuntu Server installation
+---
 
-Step 3 — Set Static IP (192.168.123.x)
-During or after Ubuntu install, assign:
+## Part 1 — Manual Setup
 
-VM1 → 192.168.123.10
-VM2 → 192.168.123.20
-VM3 → 192.168.123.30
-VM4 → 192.168.123.40
+### VM1 Static IP Configuration
+Set using NetworkManager (nmcli) on Debian Trixie:
+```bash
+sudo nmcli connection modify "Wired connection 1" \
+  ipv4.method manual \
+  ipv4.addresses 192.168.123.10/24 \
+  ipv4.gateway 192.168.123.1 \
+  ipv4.dns "8.8.8.8,1.1.1.1"
+```
 
-Step 4 — Clone VM1 to create VM2, VM3, VM4
-Instead of installing Ubuntu 4 times, install once on VM1 then clone it:
+### VM2 Static IP Configuration
+```bash
+sudo nmcli connection modify "Wired connection 1" \
+  ipv4.method manual \
+  ipv4.addresses 192.168.123.20/24 \
+  ipv4.gateway 192.168.123.1 \
+  ipv4.dns "8.8.8.8,1.1.1.1"
+```
 
-Right click VM1 in VirtualBox → Clone
-Choose Full Clone
-Rename as vm2, vm3, vm4
-Then just change the IP address on each clone
+---
+
+## VM Communication Evidence
+
+### VM1 → VM2 Ping Result
+PING 192.168.123.20 56(84) bytes of data.
+64 bytes from 192.168.123.20: icmp_seq=1 ttl=64 time=0.658 ms
+64 bytes from 192.168.123.20: icmp_seq=2 ttl=64 time=0.253 ms
+64 bytes from 192.168.123.20: icmp_seq=3 ttl=64 time=0.269 ms
+3 packets transmitted, 3 received, 0% packet loss
+<img width="734" height="676" alt="VM-1" src="https://github.com/user-attachments/assets/d9968a39-6f2f-4ef7-8a9d-13b316041601" />
+
+### VM2 → VM1 Ping Result
+PING 192.168.123.10 56(84) bytes of data.
+64 bytes from 192.168.123.10: icmp_seq=1 ttl=64 time=0.658 ms
+64 bytes from 192.168.123.10: icmp_seq=2 ttl=64 time=0.253 ms
+64 bytes from 192.168.123.10: icmp_seq=3 ttl=64 time=0.269 ms
+3 packets transmitted, 3 received, 0% packet loss
+<img width="614" height="675" alt="VM-2" src="https://github.com/user-attachments/assets/b2c41885-5ec3-44f3-b084-cb9f472a05e5" />
+
